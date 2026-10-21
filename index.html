@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BioPulse · Monitor de oximetría</title>
+
+<!-- Tailwind CSS y Chart.js por CDN (se necesita internet la primera vez) -->
+<script type="text/javascript" src="https://gc.kes.v2.scr.kaspersky-labs.com/7EA5E9BB-55E1-4C31-9C21-4943DDFED2E4/main.js?attr=UoqonRZp2nBszOymaiD0pVBthB4Gnb7tHicb_QIL8gRGmZl05DbJq4-G2YuMyVAALiyFiQ-dnT5OcolUCe5BJbHrvJhWFkekDBUNSofbnMPLByLkCedx-xriIRtVvf0taKs5ZZD9RIyeAjxzIyiFDenkdwjtVO5-mjvkZYOegGiFBym5z4vr-xjRQyy8ptq_CEu7Bx9_XVdjAe3H3p3egLjA_5d_YXCqQksb9r2Q2GQl131wjtkIJ7ZWQxCkN9ljk2LiHOyVglqWl2wcYbZZg0I6j1cSBOoIsGBDlGtgdPlmhaX_W9tyLk4jWb0YOL_Rqp-bAZMfRAkCJMMAKmPOPp0aVfO9jUn48wgLlwfxThEpu36dojIPDauEP8pBuR2FrgHNkutnY_d-7TIxibG9a4ZkCwUjRAwuo5BRsO1r1MFKVSHq0zMFZflT4Yk8YaDVd6Xce4IRbK96v9ePZQdODTqFLYb9ak0oP6_CqaRTWr46RWPe5OpMVj7nznpglKO6ZHMeQBr2dXk3eAlcM7QLxuBTFn0m49ke-dbkAEvhaQl5TGotQOTxNXZfWHbwIwh9Xx-jZhdEfzdAQx37o3Yk-hfFDKCxxVtJg3PWNLCpu-Dv7Y54WKMuV55NfzugpyKnlaYAAIMqjSor2Wcp61vUciB6Yf1KnFNtR7ecZV1dEA3cDY8ewrL_DNsKKi9VWjmvIqV1ygj4XV3yJhDgiQnGTM3JDEUGXsGmA4riXPlQpp4SS6UIH1HqBBdErsiEAFxQV7uLB5Izl8NrUOt96xO0HPv6Aaa1ffAiLMkMmbno7dMMtycgIrrCCEO71at77AD4mwJt1p2ZjVCi4pJhBXxv_bmVFvC1o6SKCP67KBuw1aSoT8Kkr0p5NbYMI6ZGyXYvfMctkyMELq82PndPJ-sl_REvc83MTj07o7ctAhwUH-tKanr595KL_bD1sCNpD2G7shnr3utqov7rVGVCzd1fb1SAQBkEjwug486wTQsvLhoxMIaWVs9WydHo-3M-Xu5BK4tH0feL7KwC9r6VpRTT0D-YcHG5uW-Qn4OpRIVP-Z3Q9-5mxAhtOSxTEvcZoYGLH1yw9ngjNUasTUnS5i8FVJuiLkUoItbweUfddYqvGbwc1d1WHhws3GrYmKlPGoXT9HCQJS2WnqlkEN3v4wEEFgNZPd78UFxfx-QVmYyjI8LNrIDjkcNBcLfnAirb8PkLwtAM2jtMgGlD86cPOkBVzS3ZwVIPS6pvN6KYuVOjKYvsSE_wDMvQQp8VNucOl4aZWYL58t8DSglbpguumPlKb2NS5sOuBEESww2ECE5dVFDGvtE10LexRrkABSu5svkxupKctw-G4MekVj2gyHF1UpiEe72v4yixCMQAmmlB8NA8IvDVWCIwrh9lN_vRxZmM8ZzAGOdyqPt3N6MQVfLL3AN6sSk8A6_LwMFN0v2S_dlQbYjtHD6ei0ZWBkiV5jSy48D83HNrc9ZIqwslwdQ2PvEkjzbpyEICaHKrgUxhVeQQgwPM8uFaxdagkF9xpDlQ232XMCRnKwD394XMBqyuJ-S-JZuDQpBAlkgdlcQLsXHKjgF5x0bJ5jNyTkIssFO1A9vw4jvbxsuXBV7LSg1tLAkV_kP37yK3lwbXhfLYsEYS-0M6AvKNTqYHuSCAidAs6dJDwe8HgKkfceRjJKghNofx_2fl1l1hBU10VqLQfqlfC2nUB-nw-fY9Glfm00C2" nonce="c51145ad9db16c29cefcd5b5a29454e0" charset="UTF-8"></script><script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<style>
+  body { font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; }
+  .num { font-variant-numeric: tabular-nums; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+
+  /* ---- Indicador de estado de la medición ---- */
+  .bp-icono { position: relative; width: 3rem; height: 3rem; display: flex; align-items: center; justify-content: center; border-radius: 9999px; flex: none; }
+  .bp-icono.vivo::after { content: ""; position: absolute; inset: 0; border-radius: 9999px; border: 2px solid currentColor; animation: bp-halo 1.6s ease-out infinite; }
+  .bp-ecg-live { stroke-dasharray: 38 62; animation: bp-ecg 1.4s linear infinite; }
+  .bp-spin { transform-origin: 50% 50%; animation: bp-giro 0.9s linear infinite; }
+  .bp-texto-in { animation: bp-entra 0.35s ease-out; }
+  .bp-colapsa { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.45s ease, opacity 0.45s ease; }
+  .bp-colapsa > div { overflow: hidden; min-height: 0; }
+  .bp-colapsa.abierto { grid-template-rows: 1fr; opacity: 1; }
+  .bp-barra { height: 4px; max-height: 0; margin-top: 0; opacity: 0; border-radius: 9999px; overflow: hidden; background: rgba(20,184,166,.18);
+              transition: max-height 0.3s ease, margin-top 0.3s ease, opacity 0.3s ease; }
+  .bp-barra.abierto { max-height: 4px; margin-top: 0.75rem; opacity: 1; }
+  .bp-barra > span { display: block; height: 100%; width: 40%; border-radius: 9999px; background: #14b8a6; animation: bp-indet 1.3s ease-in-out infinite; }
+  @keyframes bp-halo   { 0% { transform: scale(.8); opacity: .6; } 100% { transform: scale(1.5); opacity: 0; } }
+  @keyframes bp-ecg    { from { stroke-dashoffset: 38; } to { stroke-dashoffset: -62; } }
+  @keyframes bp-giro   { to { transform: rotate(360deg); } }
+  @keyframes bp-entra  { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+  @keyframes bp-indet  { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .bp-icono.vivo::after, .bp-ecg-live, .bp-spin, .bp-texto-in { animation: none; }
+    .bp-barra > span { animation: none; width: 100%; opacity: .5; }
+    .bp-colapsa, .bp-barra { transition: none; }
+  }
+</style>
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<!-- ================= ENCABEZADO ================= -->
+<header class="bg-slate-900 text-white">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <svg viewBox="0 0 64 28" class="w-14 h-6" aria-hidden="true">
+        <polyline points="0,14 14,14 18,4 24,24 29,10 33,14 64,14" fill="none" stroke="#5eead4" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1 class="text-lg font-bold leading-tight">BioPulse</h1>
+        <p class="text-xs text-slate-300 leading-tight">Monitor de oximetría de pulso</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="connPill" class="text-sm px-3 py-1 rounded-full bg-slate-700 text-slate-200">Desconectado</span>
+      <button id="simBtn" type="button" class="text-sm px-3 py-2 rounded-lg border border-slate-500 text-slate-200 hover:bg-slate-800">Probar sin sensor</button>
+      <button id="connectBtn" type="button" class="text-sm font-semibold px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-900">Conectar Arduino</button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto p-4 grid gap-4 lg:grid-cols-3">
+
+  <!-- ================= PERSONA ================= -->
+  <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5" aria-labelledby="h-persona">
+    <h2 id="h-persona" class="font-bold text-lg mb-4">Persona</h2>
+
+    <label for="patientName" class="block text-sm font-semibold mb-1">Nombre de la persona</label>
+    <input id="patientName" type="text" list="patientList" autocomplete="off" placeholder="Escriba o elija un nombre"
+           class="w-full rounded-lg border border-slate-300 px-3 py-2">
+    <datalist id="patientList"></datalist>
+
+    <label for="ageGroup" class="block text-sm font-semibold mt-4 mb-1">Grupo de edad</label>
+    <select id="ageGroup" class="w-full rounded-lg border border-slate-300 px-3 py-2 bg-white">
+      <option value="adulto">10 años o más (adulto)</option>
+      <option value="nino">2 a 10 años</option>
+      <option value="lactante">Recién nacido a 2 años</option>
+    </select>
+    <p class="text-xs text-slate-500 mt-1">Solo cambia el rango normal de frecuencia cardíaca. La SpO2 se evalúa igual en todas las edades (OMS).</p>
+
+    <div id="statusBox" class="mt-5 text-sm rounded-lg bg-slate-50 border-l-4 border-teal-500 px-3 py-2">
+      Pulse «Conectar Arduino» y elija el puerto COM.
+    </div>
+
+    <button id="saveBtn" type="button" disabled
+            class="mt-4 w-full rounded-lg px-4 py-3 font-bold text-white bg-teal-600 hover:bg-teal-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed">
+      Guardar lectura
+    </button>
+  </section>
+
+  <!-- ================= SIGNOS VITALES ================= -->
+  <section class="lg:col-span-2 grid sm:grid-cols-2 gap-4" aria-label="Lectura actual">
+
+    <!-- Estado de la medición (se sincroniza con los mensajes reales del Arduino) -->
+    <div id="fasePanel" class="sm:col-span-2 rounded-xl border-2 p-4 border-slate-200 bg-white transition-colors duration-500">
+      <div class="flex items-center gap-4">
+        <div id="faseIcono" class="bp-icono text-slate-400" aria-hidden="true"></div>
+        <div id="faseTextos" class="flex-1 min-w-0" role="status" aria-live="polite">
+          <div id="faseTitulo" class="font-bold text-slate-700">Arduino no conectado</div>
+          <div id="faseTexto" class="text-sm text-slate-600 mt-0.5"></div>
+        </div>
+        <div id="faseExtra" class="num text-sm font-semibold text-teal-700 whitespace-nowrap" aria-hidden="true"></div>
+      </div>
+      <div id="faseDetalle" class="bp-colapsa"><div>
+        <ul class="list-disc pl-5 pt-3 text-sm text-slate-700 space-y-1">
+          <li>El sensor está capturando la señal.</li>
+          <li>Mantén el dedo quieto sobre el sensor.</li>
+          <li>Espera mientras se procesan los datos.</li>
+        </ul>
+      </div></div>
+      <div id="faseBarra" class="bp-barra" aria-hidden="true"><span></span></div>
+    </div>
+
+    <div id="spo2Card" class="rounded-xl border-2 p-5 bg-white border-slate-200 transition-colors">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-slate-600">Saturación de oxígeno (SpO2)</h2>
+        <span id="spo2Badge" class="text-xs font-bold px-2 py-1 rounded-full bg-slate-200 text-slate-600">Sin dato</span>
+      </div>
+      <div class="mt-3 flex items-end gap-2">
+        <span id="spo2Val" class="num text-7xl font-extrabold leading-none">--</span>
+        <span class="text-2xl font-semibold text-slate-500 pb-1">%</span>
+      </div>
+    </div>
+
+    <div id="hrCard" class="rounded-xl border-2 p-5 bg-white border-slate-200 transition-colors">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-slate-600">Frecuencia cardíaca</h2>
+        <span id="hrBadge" class="text-xs font-bold px-2 py-1 rounded-full bg-slate-200 text-slate-600">Sin dato</span>
+      </div>
+      <div class="mt-3 flex items-end gap-2">
+        <span id="hrVal" class="num text-7xl font-extrabold leading-none">--</span>
+        <span class="text-2xl font-semibold text-slate-500 pb-1">lpm</span>
+      </div>
+    </div>
+
+    <div class="sm:col-span-2 bg-white rounded-xl border border-slate-200 px-5 py-3 flex items-center gap-4">
+      <div class="text-sm font-semibold whitespace-nowrap">Estabilidad</div>
+      <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden"><div id="stabBar" class="h-2 bg-teal-500 transition-all" style="width:0%"></div></div>
+      <div id="stabText" class="text-sm text-slate-600 whitespace-nowrap">Esperando dedo</div>
+    </div>
+  </section>
+
+  <!-- ================= RECOMENDACIONES ================= -->
+  <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5" aria-labelledby="h-reco">
+    <h2 id="h-reco" class="font-bold text-lg mb-3">RECOMENDACIONES</h2>
+    <div id="recoBox" class="rounded-lg border-l-4 border-slate-300 bg-slate-50 p-4 text-sm leading-relaxed">
+      Las recomendaciones aparecerán al tomar o guardar una lectura.
+    </div>
+  </section>
+
+  <!-- ================= GRÁFICA ================= -->
+  <section class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-5" aria-labelledby="h-chart">
+    <h2 id="h-chart" class="font-bold text-lg mb-3">Tendencia en tiempo real</h2>
+    <div class="relative h-72"><canvas id="liveChart"></canvas></div>
+  </section>
+
+  <!-- ================= REGISTRO ================= -->
+  <section class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-slate-200 p-5" aria-labelledby="h-reg">
+    <div class="flex flex-wrap items-end justify-between gap-3 mb-4">
+      <h2 id="h-reg" class="font-bold text-lg">Lecturas guardadas</h2>
+      <div class="flex flex-wrap items-end gap-3">
+        <div>
+          <label for="filterPatient" class="block text-xs font-semibold mb-1">Ver persona</label>
+          <select id="filterPatient" class="rounded-lg border border-slate-300 px-3 py-2 bg-white text-sm"></select>
+        </div>
+        <button id="csvBtn" type="button" class="text-sm px-3 py-2 rounded-lg border border-teal-600 text-teal-700 hover:bg-teal-50">Exportar CSV</button>
+        <button id="clearBtn" type="button" class="text-sm px-3 py-2 rounded-lg border border-red-300 text-red-700 hover:bg-red-50">Borrar todo</button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-100 text-left">
+            <th class="p-2">Fecha</th><th class="p-2">Hora</th><th class="p-2">Nombre</th>
+            <th class="p-2">SpO2</th><th class="p-2">Frec. cardíaca</th><th class="p-2">Estado</th><th class="p-2"></th>
+          </tr>
+        </thead>
+        <tbody id="logTable"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<p class="max-w-7xl mx-auto px-4 pb-8 text-xs text-slate-500">
+  Herramienta académica de demostración. Las recomendaciones se basan en el Manual de entrenamiento de oximetría de pulso de la OMS
+  (SpO2 ≥ 95 % normal; ≤ 94 % requiere evaluación; &lt; 90 % emergencia). Las mediciones del sensor MAX30102 son estimaciones y no sustituyen
+  un diagnóstico ni un equipo médico certificado. Los registros se guardan solo en este navegador.
+</p>
+
+<div id="toast" role="status" aria-live="polite"
+     class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm px-4 py-2 rounded-lg opacity-0 pointer-events-none transition-opacity"></div>
+
+<script>
+"use strict";
+
+/* =====================================================================
+   1) CLASIFICACIÓN CLÍNICA (Manual de oximetría de pulso de la OMS)
+   ===================================================================== */
+
+// Colores (clases de Tailwind) para cada nivel
+const TEMA = {
+  verde:    { card: "border-emerald-400 bg-emerald-50", badge: "bg-emerald-600 text-white", reco: "border-emerald-500 bg-emerald-50 text-emerald-900" },
+  amarillo: { card: "border-amber-400 bg-amber-50",     badge: "bg-amber-500 text-slate-900", reco: "border-amber-500 bg-amber-50 text-amber-900" },
+  rojo:     { card: "border-red-500 bg-red-50",         badge: "bg-red-600 text-white",       reco: "border-red-600 bg-red-50 text-red-900" },
+  gris:     { card: "border-slate-200 bg-white",        badge: "bg-slate-200 text-slate-600", reco: "border-slate-300 bg-slate-50 text-slate-700" }
+};
+
+// Rangos normales de frecuencia cardíaca según la tabla de la OMS
+const RANGO_FC = {
+  adulto:   { min: 50,  max: 100, etiqueta: "10 años o más" },
+  nino:     { min: 60,  max: 140, etiqueta: "2 a 10 años" },
+  lactante: { min: 100, max: 180, etiqueta: "recién nacido a 2 años" }
+};
+
+// SpO2: >= 95 normal | 90-94 alerta amarilla | < 90 alerta roja
+function evaluarSpO2(v) {
+  if (v >= 95) return {
+    nivel: "verde", estado: "Normal",
+    texto: "Niveles de oxígeno óptimos. Mantener un estilo de vida saludable."
+  };
+  if (v >= 90) return {
+    nivel: "amarillo", estado: "Alerta amarilla",
+    texto: "Saturación por debajo del nivel óptimo. Se requiere evaluación clínica para identificar la causa. Monitorizar al paciente de cerca."
+  };
+  return {
+    nivel: "rojo", estado: "Alerta roja",
+    texto: "EMERGENCIA MÉDICA. Hipoxemia severa detectada. El paciente necesita oxígeno suplementario inmediatamente y atención médica urgente."
+  };
+}
+
+// Frecuencia cardíaca según el grupo de edad
+function evaluarFC(hr, grupo) {
+  const r = RANGO_FC[grupo] || RANGO_FC.adulto;
+  if (hr < r.min) return { nivel: "amarillo", estado: "FC baja", rango: r };
+  if (hr > r.max) return { nivel: "amarillo", estado: "FC alta", rango: r };
+  return { nivel: "verde", estado: "FC normal", rango: r };
+}
+
+/* =====================================================================
+   2) BASE DE DATOS LOCAL (localStorage)
+   ===================================================================== */
+const CLAVE = "biopulse_registros_v1";
+let registros = cargar();
+
+function cargar() {
+  try { const d = JSON.parse(localStorage.getItem(CLAVE)); return Array.isArray(d) ? d : []; }
+  catch (e) { return []; }
+}
+function guardarBD() {
+  try { localStorage.setItem(CLAVE, JSON.stringify(registros)); return true; }
+  catch (e) { toast("No se pudo guardar en el navegador."); return false; }
+}
+
+/* =====================================================================
+   3) UTILIDADES
+   ===================================================================== */
+const $ = (id) => document.getElementById(id);
+const pad = (n) => String(n).padStart(2, "0");
+const fmtFecha = (d) => pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear();
+const fmtHora = (d) => pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+
+let toastTimer;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg; t.style.opacity = 1;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => (t.style.opacity = 0), 2600);
+}
+function setEstado(msg, error) {
+  const b = $("statusBox");
+  b.textContent = msg;
+  b.className = "mt-5 text-sm rounded-lg border-l-4 px-3 py-2 " +
+    (error ? "bg-red-50 border-red-500 text-red-800" : "bg-slate-50 border-teal-500");
+}
+function setBadge(el, texto, nivel) {
+  el.textContent = texto;
+  el.className = "text-xs font-bold px-2 py-1 rounded-full " + TEMA[nivel].badge;
+}
+
+/* =====================================================================
+   4) RECOMENDACIONES
+   ===================================================================== */
+function mostrarRecomendaciones(r, titulo) {
+  const s = evaluarSpO2(r.spo2);
+  const f = evaluarFC(r.hr, r.group);
+  const box = $("recoBox");
+  box.className = "rounded-lg border-l-4 p-4 text-sm leading-relaxed " + TEMA[s.nivel].reco;
+  box.innerHTML = "";
+
+  const h = document.createElement("div");
+  h.className = "font-bold text-base mb-1";
+  h.textContent = s.estado + " · SpO2 " + r.spo2 + " %";
+  box.appendChild(h);
+
+  if (titulo) {
+    const t = document.createElement("div");
+    t.className = "text-xs opacity-80 mb-2";
+    t.textContent = titulo;
+    box.appendChild(t);
+  }
+
+  const p = document.createElement("p");
+  p.className = "font-semibold";
+  p.textContent = s.texto;
+  box.appendChild(p);
+
+  const extras = [];
+  if (s.nivel !== "verde") {
+    extras.push("Antes de actuar, descarte una falsa lectura: sensor bien colocado, dedo no frío, sin luz intensa directa sobre el sensor y sin movimiento. Ante la duda, prevalece el criterio clínico sobre el equipo (OMS).");
+  }
+  if (f.nivel !== "verde") {
+    extras.push("Frecuencia cardíaca " + r.hr + " lpm " + (f.estado === "FC baja" ? "por debajo" : "por encima") +
+      " del rango normal para " + f.rango.etiqueta + " (" + f.rango.min + "–" + f.rango.max +
+      " lpm). Repita la medición y, si persiste, consulte a personal de salud.");
+  }
+  if (extras.length) {
+    const ul = document.createElement("ul");
+    ul.className = "list-disc pl-5 mt-3 space-y-1";
+    extras.forEach((e) => { const li = document.createElement("li"); li.textContent = e; ul.appendChild(li); });
+    box.appendChild(ul);
+  }
+}
+
+/* =====================================================================
+   5) ESTADO DE LA LECTURA EN VIVO
+   ===================================================================== */
+let actual = null;          // última lectura válida {hr, spo2}
+let recientes = [];         // últimas lecturas válidas para medir estabilidad
+let estable = false;
+let yaGuardada = false;     // evita guardar dos veces con el mismo dedo
+const LECTURAS_ESTABLES = 3;
+
+// Al retirar el dedo, el resultado se queda en pantalla este tiempo
+// (o hasta que se coloque un dedo para una nueva medición)
+const RETENER_SEG = 10;
+let holdTimer = null;       // temporizador de la retención
+let holdRestante = 0;       // segundos que faltan
+
+// Indicador informativo: las últimas 3 lecturas válidas son parecidas entre sí
+function calcularEstabilidad() {
+  if (recientes.length < LECTURAS_ESTABLES) return false;
+  const u = recientes.slice(-LECTURAS_ESTABLES);
+  const hrs = u.map((x) => x.hr), sps = u.map((x) => x.spo2);
+  const dHr = Math.max(...hrs) - Math.min(...hrs);
+  const dSp = Math.max(...sps) - Math.min(...sps);
+  return dHr <= 10 && dSp <= 3;
+}
+
+// Se puede guardar en cuanto hay una lectura válida del sensor (la última recibida).
+// La estabilidad es solo informativa: a veces el sensor entrega una sola lectura válida.
+function puedeGuardar() {
+  return actual !== null;
+}
+
+function actualizarBoton() {
+  const b = $("saveBtn");
+  if (yaGuardada && !simTimer) { b.textContent = "Lectura guardada ✓"; b.disabled = true; return; }
+  if (puedeGuardar()) { b.textContent = "Guardar lectura"; b.disabled = false; return; }
+  b.disabled = true;
+  b.textContent = "Guardar lectura";
+}
+
+function actualizarEstabilidadUI() {
+  const n = Math.min(recientes.length, LECTURAS_ESTABLES);
+  $("stabBar").style.width = (estable ? 100 : (n / LECTURAS_ESTABLES) * 80) + "%";
+  $("stabText").textContent = estable ? "Lectura estable" : (actual ? "Lectura variable" : "Esperando dedo");
+}
+
+function pintarVitales(hr, spo2) {
+  if (hr == null) {
+    $("spo2Val").textContent = "--"; $("hrVal").textContent = "--";
+    $("spo2Card").className = "rounded-xl border-2 p-5 transition-colors " + TEMA.gris.card;
+    $("hrCard").className = "rounded-xl border-2 p-5 transition-colors " + TEMA.gris.card;
+    setBadge($("spo2Badge"), "Sin dato", "gris"); setBadge($("hrBadge"), "Sin dato", "gris");
+    return;
+  }
+  const s = evaluarSpO2(spo2), f = evaluarFC(hr, $("ageGroup").value);
+  $("spo2Val").textContent = spo2; $("hrVal").textContent = hr;
+  $("spo2Card").className = "rounded-xl border-2 p-5 transition-colors " + TEMA[s.nivel].card;
+  $("hrCard").className = "rounded-xl border-2 p-5 transition-colors " + TEMA[f.nivel].card;
+  setBadge($("spo2Badge"), s.estado, s.nivel);
+  setBadge($("hrBadge"), f.estado, f.nivel);
+}
+
+// Llega una lectura válida
+function onLectura(hr, spo2) {
+  cancelarRetencion();
+  hr = Math.round(Number(hr)); spo2 = Math.round(Number(spo2));
+  if (!isFinite(hr) || !isFinite(spo2)) return;
+
+  actual = { hr, spo2 };
+  recientes.push(actual);
+  if (recientes.length > 10) recientes.shift();
+  estable = calcularEstabilidad();
+
+  pintarVitales(hr, spo2);
+  mostrarRecomendaciones({ hr, spo2, group: $("ageGroup").value }, "Lectura en vivo");
+  agregarPunto(spo2, hr);
+  actualizarEstabilidadUI();
+  actualizarBoton();
+  if (yaGuardada && !simTimer) setEstado("Lectura guardada. Retire el dedo para medir a otra persona.");
+  else if (puedeGuardar()) setEstado((estable ? "Lectura estable. " : "Lectura obtenida. ") + "Escriba el nombre y pulse «Guardar lectura».");
+  else setEstado("Midiendo… mantenga el dedo quieto.");
+  setFase("completa");
+}
+
+// Sensor midiendo pero sin lectura válida todavía
+// (conserva la última lectura válida para que no desaparezca ni se bloquee el guardado)
+function onMidiendo(phase) {
+  cancelarRetencion();
+  agregarPunto(null, null);
+  if (!actual) setEstado("Midiendo… mantenga el dedo quieto unos segundos.");
+  setFase(decidirFaseMedicion(phase));
+}
+
+// Estado en reposo: sin dedo y sin resultado en pantalla
+function limpiarLectura() {
+  actual = null; recientes = []; estable = false; yaGuardada = false;
+  pintarVitales(null);
+  actualizarEstabilidadUI(); actualizarBoton();
+  setFase(faseReposo());
+}
+function onSinDedo() {
+  cancelarRetencion();
+  limpiarLectura();
+  agregarPunto(null, null);
+  setEstado("Coloque el dedo en el sensor.");
+}
+
+// Se retiró el dedo: si había una lectura, se conserva RETENER_SEG segundos
+function iniciarRetencion() {
+  if (holdTimer) return;                 // ya se está reteniendo
+  if (!actual) { onSinDedo(); return; }  // no había resultado que conservar
+  holdRestante = RETENER_SEG;
+  agregarPunto(null, null);              // corta la línea de la gráfica
+  pintarRetencion();
+  holdTimer = setInterval(() => {
+    holdRestante--;
+    if (holdRestante <= 0) { onSinDedo(); }   // onSinDedo cancela el temporizador
+    else pintarRetencion();
+  }, 1000);
+}
+function pintarRetencion() {
+  $("stabText").textContent = "Resultado retenido (" + holdRestante + " s)";
+  setEstado((yaGuardada ? "Lectura guardada. " : "") + "Resultado retenido " + holdRestante +
+            " s. " + (yaGuardada ? "" : "Puede guardarlo. ") + "Coloque un dedo para una nueva medición.");
+  setFase("completa");
+}
+function cancelarRetencion() {
+  if (holdTimer) { clearInterval(holdTimer); holdTimer = null; }
+}
+
+/* =====================================================================
+   5b) ESTADO DE LA MEDICIÓN (indicador visual sincronizado con el Arduino)
+   Solo cambia por mensajes REALES del Arduino; nunca por tiempo transcurrido.
+     espera      -> sin dedo / equipo listo
+     captura     -> llegó {"finger":1,"ok":0} al empezar a leer la ventana (~4 s)
+     procesando  -> (firmware opcional) {"phase":"processing"}
+     completa    -> llegó una lectura válida {"ok":1,"hr":..,"spo2":..}
+     senal       -> la lectura no fue válida (señal débil o con movimiento)
+     error       -> puerto perdido, Arduino sin respuesta o sensor no detectado
+   ===================================================================== */
+const TIMEOUT_SERIAL_MS = 30000;  // red de seguridad: sin NINGÚN mensaje durante 30 s = Arduino colgado (la animación no queda activa para siempre)
+const TIEMPO_SENAL_MS = 20000;    // solo si pasan 20 s midiendo sin lograr ni una lectura válida se avisa "Señal insuficiente"
+let fase = null, faseDesde = 0, faseOpts = {};
+let ultimoMensaje = Date.now();
+
+const ICONOS = {
+  ecg: '<svg width="36" height="16" viewBox="0 0 64 28"><polyline points="0,14 14,14 18,4 24,24 29,10 33,14 64,14" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity=".55"/></svg>',
+  vivo: '<svg width="36" height="16" viewBox="0 0 64 28"><polyline points="0,14 14,14 18,4 24,24 29,10 33,14 64,14" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity=".25"/>' +
+        '<polyline class="bp-ecg-live" pathLength="100" points="0,14 14,14 18,4 24,24 29,10 33,14 64,14" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  spin: '<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="none" stroke="currentColor" stroke-width="3" opacity=".2"/>' +
+        '<path class="bp-spin" d="M14 3a11 11 0 0 1 11 11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
+  ok: '<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" fill="currentColor" opacity=".15"/><path d="M8 14.5l4.2 4.2L20 10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  alerta: '<svg width="28" height="28" viewBox="0 0 28 28"><path d="M14 3L26 24H2z" fill="currentColor" opacity=".15" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 11v6M14 20.5v.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  error: '<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" fill="currentColor" opacity=".15"/><path d="M9.5 9.5l9 9M18.5 9.5l-9 9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>'
+};
+
+const TEMA_FASE = {
+  gris:  { panel: "border-slate-200 bg-white",         icono: "text-slate-400",   titulo: "text-slate-700" },
+  teal:  { panel: "border-teal-400 bg-teal-50",        icono: "text-teal-600",    titulo: "text-teal-900" },
+  verde: { panel: "border-emerald-400 bg-emerald-50",  icono: "text-emerald-600", titulo: "text-emerald-900" },
+  ambar: { panel: "border-amber-400 bg-amber-50",      icono: "text-amber-600",   titulo: "text-amber-900" },
+  rojo:  { panel: "border-red-500 bg-red-50",          icono: "text-red-600",     titulo: "text-red-900" }
+};
+
+const FASES = {
+  desconectado: { tema: "gris",  icono: "ecg",    titulo: "Arduino no conectado", texto: "Pulsa «Conectar Arduino» para comenzar." },
+  espera:       { tema: "gris",  icono: "ecg",    titulo: "Esperando medición",   texto: "Coloca el dedo correctamente sobre el sensor." },
+  captura:      { tema: "teal",  icono: "vivo",   titulo: "Midiendo signos vitales…", texto: "", detalle: true, barra: true },
+  procesando:   { tema: "teal",  icono: "spin",   titulo: "Procesando resultados…",   texto: "Calculando frecuencia cardíaca y SpO2.", barra: true },
+  completa:     { tema: "verde", icono: "ok",     titulo: "Medición completada",
+                  texto: () => holdTimer ? "Resultado conservado " + holdRestante + " s. Coloca un dedo para una nueva medición."
+                           : simTimer ? "Datos simulados del modo de prueba."
+                           : "Resultados listos. Puedes guardar la lectura; al retirar el dedo se conserva " + RETENER_SEG + " s." },
+  senal:        { tema: "ambar", icono: "alerta", titulo: "Señal insuficiente",
+                  texto: () => actual ? "La señal se debilitó. Se conserva la última lectura; mantén el dedo quieto y bien apoyado."
+                                      : "El sensor no detecta una señal adecuada. Ajusta la posición del dedo y mantenlo quieto." },
+  error:        { tema: "rojo",  icono: "error",  titulo: "Error de conexión", texto: "Se perdió la comunicación con el Arduino." }
+};
+
+// Fase de reposo: sin dedo (conectado) o sin Arduino
+function faseReposo() { return (puerto || simTimer) ? "espera" : "desconectado"; }
+
+function setFase(nueva, opts) {
+  const cambio = nueva !== fase;
+  fase = nueva; faseOpts = opts || {};
+  if (cambio) faseDesde = Date.now();
+  pintarFase(cambio);
+}
+
+function pintarFase(cambio) {
+  const f = FASES[fase]; if (!f) return;
+  const t = TEMA_FASE[f.tema];
+  const txt = faseOpts.texto || (typeof f.texto === "function" ? f.texto() : f.texto);
+  $("fasePanel").className = "sm:col-span-2 rounded-xl border-2 p-4 transition-colors duration-500 " + t.panel;
+  $("faseIcono").className = "bp-icono " + t.icono + (f.icono === "vivo" ? " vivo" : "");
+  $("faseTitulo").className = "font-bold " + t.titulo;
+  $("faseTitulo").textContent = faseOpts.titulo || f.titulo;
+  $("faseTexto").textContent = txt;
+  $("faseTexto").style.display = txt ? "" : "none";
+  $("faseDetalle").classList.toggle("abierto", !!f.detalle);
+  $("faseBarra").classList.toggle("abierto", !!f.barra);
+  if (cambio) {
+    $("faseIcono").innerHTML = ICONOS[f.icono];
+    const tx = $("faseTextos");
+    tx.classList.remove("bp-texto-in"); void tx.offsetWidth; tx.classList.add("bp-texto-in");
+  }
+  $("faseExtra").textContent = fase === "captura" ? Math.floor((Date.now() - faseDesde) / 1000) + " s" : "";
+}
+
+// Decide qué mostrar cuando llega un {"ok":0} (lectura aún no válida).
+// La animación de "Midiendo" continúa hasta que llegue el resultado: los ok:0 intermedios NO cambian la tarjeta.
+// Solo si pasan TIEMPO_SENAL_MS sin ninguna lectura válida se avisa de señal insuficiente.
+function decidirFaseMedicion(phase) {
+  if (phase === "capture") return fase === "captura" ? "captura" : (fase === "completa" || fase === "senal" ? fase : "captura");
+  if (fase === "captura" || fase === "procesando") return (Date.now() - faseDesde > TIEMPO_SENAL_MS) ? "senal" : "captura";
+  if (fase === "senal" || fase === "completa") return fase;   // con resultado en pantalla no se interrumpe
+  return "captura";                                            // primer ok:0 tras el reposo = empezó la captura
+}
+
+// ¿Debería estar llegando información del Arduino ahora mismo?
+function esperandoDatos() {
+  return fase === "captura" || fase === "procesando" || fase === "senal" || (fase === "completa" && !holdTimer);
+}
+
+// Cada 0.5 s: contador de captura y vigilancia de la comunicación
+setInterval(() => {
+  if (fase === "captura") $("faseExtra").textContent = Math.floor((Date.now() - faseDesde) / 1000) + " s";
+  if (puerto && !simTimer && esperandoDatos() && Date.now() - ultimoMensaje > TIMEOUT_SERIAL_MS) {
+    setFase("error", {
+      titulo: "Sin respuesta del Arduino",
+      texto: "Dejó de enviar datos. Revisa el cable USB y la conexión del sensor. Se recuperará solo si vuelve a responder."
+    });
+    setEstado("El Arduino dejó de responder. Revise el cable USB y el sensor.", true);
+  }
+}, 500);
+
+/* =====================================================================
+   6) GRÁFICA EN TIEMPO REAL (Chart.js)
+   ===================================================================== */
+const MAX_PUNTOS = 60;
+const grafica = new Chart($("liveChart"), {
+  type: "line",
+  data: {
+    labels: [],
+    datasets: [
+      { label: "SpO2 (%)", data: [], borderColor: "#0d9488", backgroundColor: "#0d9488", yAxisID: "y", tension: 0.3, pointRadius: 2, borderWidth: 2 },
+      { label: "Frecuencia cardíaca (lpm)", data: [], borderColor: "#e11d48", backgroundColor: "#e11d48", yAxisID: "y1", tension: 0.3, pointRadius: 2, borderWidth: 2 },
+      { label: "Normal ≥ 95 %", data: [], borderColor: "#16a34a", borderDash: [6, 4], pointRadius: 0, borderWidth: 1, yAxisID: "y" },
+      { label: "Emergencia < 90 %", data: [], borderColor: "#dc2626", borderDash: [6, 4], pointRadius: 0, borderWidth: 1, yAxisID: "y" }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    interaction: { mode: "index", intersect: false },
+    scales: {
+      y:  { min: 70, max: 100, title: { display: true, text: "SpO2 (%)" } },
+      y1: { min: 40, max: 160, position: "right", grid: { drawOnChartArea: false }, title: { display: true, text: "Frecuencia cardíaca (lpm)" } }
+    },
+    plugins: { legend: { position: "bottom" } }
+  }
+});
+
+function agregarPunto(spo2, hr) {
+  const d = grafica.data;
+  d.labels.push(fmtHora(new Date()));
+  d.datasets[0].data.push(spo2);
+  d.datasets[1].data.push(hr);
+  d.datasets[2].data.push(95);
+  d.datasets[3].data.push(90);
+  if (d.labels.length > MAX_PUNTOS) {
+    d.labels.shift(); d.datasets.forEach((s) => s.data.shift());
+  }
+  grafica.update("none");
+}
+
+/* =====================================================================
+   7) GUARDAR LECTURA Y TABLA
+   ===================================================================== */
+$("saveBtn").addEventListener("click", () => {
+  if (!puedeGuardar()) return;
+  const nombre = $("patientName").value.trim();
+  if (!nombre) {
+    toast("Escriba el nombre de la persona antes de guardar.");
+    setEstado("Falta el nombre: escríbalo en «Nombre de la persona» y vuelva a pulsar «Guardar lectura».", true);
+    $("patientName").focus();
+    return;
+  }
+
+  const ahora = new Date();
+  const grupo = $("ageGroup").value;
+  const reg = {
+    id: ahora.getTime() + "-" + Math.random().toString(36).slice(2, 7),
+    ts: ahora.toISOString(),
+    patient: nombre,
+    hr: actual.hr,
+    spo2: actual.spo2,
+    group: grupo,
+    estado: evaluarSpO2(actual.spo2).estado
+  };
+  registros.push(reg);
+  guardarBD();
+  yaGuardada = true;
+
+  actualizarBoton();
+  refrescarPacientes();
+  dibujarTabla();
+  mostrarRecomendaciones({ hr: reg.hr, spo2: reg.spo2, group: grupo }, "Lectura guardada de " + nombre + " · " + fmtHora(ahora));
+  toast("Lectura guardada.");
+  setEstado("Lectura guardada. Retire el dedo para medir a otra persona.");
+});
+
+function refrescarPacientes() {
+  const nombres = Array.from(new Set(registros.map((r) => r.patient))).sort((a, b) => a.localeCompare(b, "es"));
+  const dl = $("patientList"); dl.innerHTML = "";
+  nombres.forEach((n) => { const o = document.createElement("option"); o.value = n; dl.appendChild(o); });
+
+  const sel = $("filterPatient");
+  const previo = sel.value || "__todos__";
+  sel.innerHTML = "";
+  const todos = document.createElement("option"); todos.value = "__todos__"; todos.textContent = "Todos (" + nombres.length + ")";
+  sel.appendChild(todos);
+  nombres.forEach((n) => { const o = document.createElement("option"); o.value = n; o.textContent = n; sel.appendChild(o); });
+  sel.value = (previo === "__todos__" || nombres.includes(previo)) ? previo : "__todos__";
+}
+
+function dibujarTabla() {
+  const filtro = $("filterPatient").value || "__todos__";
+  const filas = registros.filter((r) => filtro === "__todos__" || r.patient === filtro)
+                         .sort((a, b) => b.ts.localeCompare(a.ts));
+  const tb = $("logTable"); tb.innerHTML = "";
+
+  if (!filas.length) {
+    const tr = tb.insertRow(); const td = tr.insertCell();
+    td.colSpan = 7; td.className = "p-6 text-center text-slate-500";
+    td.textContent = registros.length ? "Esta persona no tiene lecturas." : "Aún no hay lecturas guardadas.";
+    return;
+  }
+
+  filas.forEach((r) => {
+    const d = new Date(r.ts);
+    const s = evaluarSpO2(r.spo2), f = evaluarFC(r.hr, r.group);
+    const tr = tb.insertRow(); tr.className = "border-b border-slate-100";
+
+    const celda = (txt, cls) => { const c = tr.insertCell(); c.className = "p-2 " + (cls || ""); c.textContent = txt; return c; };
+    celda(fmtFecha(d)); celda(fmtHora(d)); celda(r.patient, "font-medium");
+    celda(r.spo2 + " %", "num font-semibold"); celda(r.hr + " lpm", "num font-semibold");
+
+    const ce = tr.insertCell(); ce.className = "p-2";
+    const wrap = document.createElement("div"); wrap.className = "flex flex-wrap gap-1";
+    const b1 = document.createElement("span"); b1.className = "text-xs font-bold px-2 py-1 rounded-full " + TEMA[s.nivel].badge; b1.textContent = s.estado;
+    wrap.appendChild(b1);
+    if (f.nivel !== "verde") {
+      const b2 = document.createElement("span"); b2.className = "text-xs font-bold px-2 py-1 rounded-full " + TEMA.amarillo.badge; b2.textContent = f.estado;
+      wrap.appendChild(b2);
+    }
+    ce.appendChild(wrap);
+
+    const ca = tr.insertCell(); ca.className = "p-2 whitespace-nowrap text-right";
+    const ver = document.createElement("button");
+    ver.type = "button"; ver.textContent = "Ver recomendaciones";
+    ver.className = "text-xs px-2 py-1 mr-1 rounded border border-teal-600 text-teal-700 hover:bg-teal-50";
+    ver.addEventListener("click", () => {
+      mostrarRecomendaciones({ hr: r.hr, spo2: r.spo2, group: r.group }, "Lectura guardada de " + r.patient + " · " + fmtFecha(d) + " " + fmtHora(d));
+      $("recoBox").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    const del = document.createElement("button");
+    del.type = "button"; del.textContent = "Eliminar";
+    del.className = "text-xs px-2 py-1 rounded border border-red-300 text-red-700 hover:bg-red-50";
+    del.addEventListener("click", () => {
+      if (!confirm("¿Eliminar esta lectura de " + r.patient + "?")) return;
+      registros = registros.filter((x) => x.id !== r.id);
+      guardarBD(); refrescarPacientes(); dibujarTabla();
+    });
+    ca.appendChild(ver); ca.appendChild(del);
+  });
+}
+
+$("filterPatient").addEventListener("change", dibujarTabla);
+$("ageGroup").addEventListener("change", () => {
+  if (!actual) return;
+  pintarVitales(actual.hr, actual.spo2);
+  mostrarRecomendaciones({ hr: actual.hr, spo2: actual.spo2, group: $("ageGroup").value }, "Lectura en vivo");
+});
+
+$("clearBtn").addEventListener("click", () => {
+  if (!registros.length) return;
+  if (!confirm("Se borrarán TODAS las lecturas guardadas. ¿Continuar?")) return;
+  registros = []; guardarBD(); refrescarPacientes(); dibujarTabla();
+});
+
+$("csvBtn").addEventListener("click", () => {
+  const filtro = $("filterPatient").value || "__todos__";
+  const filas = registros.filter((r) => filtro === "__todos__" || r.patient === filtro).sort((a, b) => a.ts.localeCompare(b.ts));
+  if (!filas.length) { toast("No hay lecturas para exportar."); return; }
+  const q = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+  const lineas = ["Fecha,Hora,Nombre,SpO2,Frecuencia cardiaca,Estado,Recomendacion"];
+  filas.forEach((r) => {
+    const d = new Date(r.ts), s = evaluarSpO2(r.spo2);
+    lineas.push([fmtFecha(d), fmtHora(d), q(r.patient), r.spo2, r.hr, q(s.estado), q(s.texto)].join(","));
+  });
+  const blob = new Blob(["\ufeff" + lineas.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = "biopulse_lecturas.csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+/* =====================================================================
+   8) WEB SERIAL API (lectura del Arduino en tiempo real)
+   ===================================================================== */
+let puerto = null, lector = null, leyendo = false;
+let desconexionManual = false;      // true si el usuario pulsó «Desconectar» (no es un error)
+
+function setConectado(on) {
+  const p = $("connPill");
+  p.textContent = on ? "Conectado" : "Desconectado";
+  p.className = "text-sm px-3 py-1 rounded-full " + (on ? "bg-emerald-200 text-emerald-900" : "bg-slate-700 text-slate-200");
+  $("connectBtn").textContent = on ? "Desconectar" : "Conectar Arduino";
+}
+
+$("connectBtn").addEventListener("click", async () => {
+  if (puerto) { await desconectar(); return; }
+  if (!("serial" in navigator)) {
+    setEstado("Este navegador no permite conexión USB. Use Google Chrome o Microsoft Edge en computador.", true);
+    return;
+  }
+  try {
+    detenerSimulacion();
+    puerto = await navigator.serial.requestPort();      // ventana emergente para elegir el puerto COM
+    await puerto.open({ baudRate: 115200 });
+  } catch (e) {
+    puerto = null;
+    setEstado("No se pudo abrir el puerto. Cierre el Monitor Serie de Arduino IDE e intente de nuevo.", true);
+    if (!e || e.name !== "NotFoundError") {   // NotFoundError = el usuario cerró la ventana de puertos
+      setFase("error", { titulo: "No se pudo abrir el puerto", texto: "Cierra el Monitor Serie de Arduino IDE (o cualquier otra pestaña conectada) e inténtalo de nuevo." });
+    }
+    return;
+  }
+  setConectado(true);
+  ultimoMensaje = Date.now();
+  setFase("espera");
+  setEstado("Conectado. Esperando datos del Arduino…");
+  leyendo = true;
+  bucleLectura();
+});
+
+async function bucleLectura() {
+  const decoder = new TextDecoderStream();
+  const cerrado = puerto.readable.pipeTo(decoder.writable).catch(() => {});
+  lector = decoder.readable.getReader();
+  let buffer = "";
+  try {
+    while (leyendo) {
+      const { value, done } = await lector.read();
+      if (done) break;
+      buffer += value;
+      const lineas = buffer.split("\n");
+      buffer = lineas.pop();            // la última puede estar incompleta
+      lineas.forEach(procesarLinea);
+    }
+  } catch (e) {
+    console.error("Lectura serial:", e);
+  } finally {
+    try { lector.releaseLock(); } catch (e) {}
+    await cerrado;
+    try { await puerto.close(); } catch (e) {}
+    puerto = null; lector = null; leyendo = false;
+    const fueManual = desconexionManual; desconexionManual = false;
+    setConectado(false);
+    onSinDedo();
+    setEstado("Dispositivo desconectado. Pulse «Conectar Arduino» para continuar.");
+    if (!fueManual) {
+      setFase("error", { titulo: "Conexión perdida", texto: "Se perdió la comunicación con el Arduino. Revisa el cable USB y pulsa «Conectar Arduino»." });
+    }
+  }
+}
+
+async function desconectar() {
+  desconexionManual = true;
+  leyendo = false;
+  try { if (lector) await lector.cancel(); } catch (e) {}
+}
+
+// Interpreta cada línea JSON enviada por el Arduino
+function procesarLinea(linea) {
+  linea = linea.trim();
+  if (!linea.startsWith("{") || !linea.endsWith("}")) return;
+  let m;
+  try { m = JSON.parse(linea); } catch (e) { return; }
+
+  ultimoMensaje = Date.now();   // cualquier mensaje válido demuestra que el Arduino responde
+  if (m.status === "ready") { onSinDedo(); setEstado("Equipo listo. Escriba el nombre y coloque el dedo en el sensor."); return; }
+  if (m.status === "sensor_error") {
+    setEstado("El Arduino no detecta el sensor MAX30102. Revise SDA, SCL, 3.3V y GND.", true);
+    setFase("error", { titulo: "Sensor no detectado", texto: "El Arduino no detecta el MAX30102. Revisa SDA, SCL, 3.3V y GND." });
+    return;
+  }
+  if (m.finger === 0) { iniciarRetencion(); return; }   // dedo retirado: conservar el resultado
+
+  // Llegó un mensaje con dedo puesto: si había un resultado retenido, es una medición NUEVA
+  if (holdTimer) { cancelarRetencion(); limpiarLectura(); }
+
+  // Firmware nuevo: la captura terminó y el Arduino está calculando.
+  // La tarjeta sigue mostrando la animación de "Midiendo" hasta que llegue el resultado.
+  if (m.phase === "processing") { return; }
+
+  const tieneDatos = m.hr !== undefined && m.spo2 !== undefined;
+  if (tieneDatos && m.ok !== 0) onLectura(m.hr, m.spo2);   // también acepta el formato antiguo {"hr":..,"spo2":..}
+  else if (m.ok === 0) onMidiendo(m.phase);
+}
+
+navigator.serial && navigator.serial.addEventListener("disconnect", () => { leyendo = false; });
+
+/* =====================================================================
+   9) MODO PRUEBA SIN SENSOR
+   ===================================================================== */
+let simTimer = null;
+function detenerSimulacion() {
+  if (!simTimer) return;
+  clearInterval(simTimer); simTimer = null;
+  $("simBtn").textContent = "Probar sin sensor";
+  onSinDedo();
+}
+$("simBtn").addEventListener("click", () => {
+  if (simTimer) { detenerSimulacion(); return; }
+  if (puerto) { toast("Desconecte el Arduino antes de usar el modo de prueba."); return; }
+  let hr = 72, sp = 97;
+  $("simBtn").textContent = "Detener prueba";
+  setEstado("Modo de prueba: datos simulados cada segundo.");
+  simTimer = setInterval(() => {
+    hr = Math.min(105, Math.max(55, hr + Math.round(Math.random() * 4 - 2)));
+    sp = Math.min(100, Math.max(86, sp + Math.round(Math.random() * 2 - 1)));
+    onLectura(hr, sp);
+  }, 1000);
+});
+
+/* =====================================================================
+   INICIO
+   ===================================================================== */
+refrescarPacientes();
+dibujarTabla();
+setFase("desconectado");
+</script>
+</body>
+</html>
